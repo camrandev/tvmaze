@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-const BASE_URL = 'https://api.tvmaze.com';
+const BASE_URL = "https://api.tvmaze.com";
 const DEFAULT_IMAGE = `https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300`;
 
-const $showsList = $('#showsList');
-const $episodesArea = $('#episodesArea');
-const $searchForm = $('#searchForm');
+const $showsList = $("#showsList");
+const $episodesArea = $("#episodesArea");
+const $searchForm = $("#searchForm");
 const searchTerm = $searchForm.val();
 
 /** Given a search term, search for tv shows that match that query.
@@ -42,22 +42,39 @@ async function getShowsByTerm(searchTerm) {
 
   // ADD: Remove placeholder & make request to TVMaze search shows API.
 
-  let showImage;
+  let formattedShowData = [];
 
-  if (searchResult.data[0].show.image === null) {
-    showImage = DEFAULT_IMAGE;
-  } else {
-    showImage = searchResult.data[0].show.image.original;
+  //parse the API output into specified format
+  for (let show of shows) {
+    let showCard = {};
+    let showImage;
+    //TODO: what am I doing wrong that makes it show.show?
+    // console.log('show=', show.show.image.original)
+
+    if (show.show.image === null) {
+      showImage = DEFAULT_IMAGE;
+    } else {
+      showImage = show.show.image.original;
+    }
+
+    showCard.id = show.show.id;
+    showCard.name = show.show.name;
+    showCard.summary = show.show.summary || 'no summary available';
+    showCard.image = showImage;
+
+    formattedShowData.push(showCard);
   }
 
-  return [
-    {
-      id: searchResult.data[0].show.id,
-      name: searchResult.data[0].show.name,
-      summary: searchResult.data[0].show.summary,
-      image: showImage,
-    },
-  ];
+  return formattedShowData
+
+  // return [
+  //   {
+  //     id: searchResult.data[0].show.id,
+  //     name: searchResult.data[0].show.name,
+  //     summary: searchResult.data[0].show.summary,
+  //     image: showImage,
+  //   },
+  // ];
 }
 
 /** Given list of shows, create markup for each and append to DOM.
@@ -98,7 +115,7 @@ function displayShows(shows) {
  */
 
 async function searchShowsAndDisplay() {
-  const term = $('#searchForm-term').val();
+  const term = $("#searchForm-term").val();
   const shows = await getShowsByTerm(term);
 
   $episodesArea.hide();
@@ -106,7 +123,7 @@ async function searchShowsAndDisplay() {
 }
 
 /**handles click on submit button and calls searchShowAndDisplay */
-$searchForm.on('submit', async function handleSearchForm(evt) {
+$searchForm.on("submit", async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
