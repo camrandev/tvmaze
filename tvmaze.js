@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-const BASE_URL = "https://api.tvmaze.com";
-const DEFAULT_IMAGE = `https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300`
+const BASE_URL = 'https://api.tvmaze.com';
+const DEFAULT_IMAGE = `https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300`;
 
-const $showsList = $("#showsList");
-const $episodesArea = $("#episodesArea");
-const $searchForm = $("#searchForm");
+const $showsList = $('#showsList');
+const $episodesArea = $('#episodesArea');
+const $searchForm = $('#searchForm');
 const searchTerm = $searchForm.val();
 
 /** Given a search term, search for tv shows that match that query.
@@ -21,6 +21,7 @@ async function getShowsByTerm(searchTerm) {
     `${BASE_URL}/search/shows/?q=${searchTerm}`
   );
 
+  const shows = searchResult.data;
   //TODO:ask about why this didnt work in CR
   //   method: "get",
   //   url: `${BASE_URL}/search/shows/?q=${searchTerm}`,
@@ -41,12 +42,20 @@ async function getShowsByTerm(searchTerm) {
 
   // ADD: Remove placeholder & make request to TVMaze search shows API.
 
+  let showImage;
+
+  if (searchResult.data[0].show.image === null) {
+    showImage = DEFAULT_IMAGE;
+  } else {
+    showImage = searchResult.data[0].show.image.original;
+  }
+
   return [
     {
       id: searchResult.data[0].show.id,
       name: searchResult.data[0].show.name,
       summary: searchResult.data[0].show.summary,
-      image: searchResult.data[0].show.image.original || DEFAULT_IMAGE,
+      image: showImage,
     },
   ];
 }
@@ -57,16 +66,16 @@ async function getShowsByTerm(searchTerm) {
  * */
 
 function displayShows(shows) {
-  console.log('shows=', shows)
+  // console.log('shows=', shows);
   $showsList.empty();
 
   for (const show of shows) {
-    console.log('show=', show)
+    // console.log('show=', show);
     const $show = $(`
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="${show.image}"
+              src="${show.image || DEFAULT_IMAGE}"
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
@@ -89,7 +98,7 @@ function displayShows(shows) {
  */
 
 async function searchShowsAndDisplay() {
-  const term = $("#searchForm-term").val();
+  const term = $('#searchForm-term').val();
   const shows = await getShowsByTerm(term);
 
   $episodesArea.hide();
@@ -97,7 +106,7 @@ async function searchShowsAndDisplay() {
 }
 
 /**handles click on submit button and calls searchShowAndDisplay */
-$searchForm.on("submit", async function handleSearchForm(evt) {
+$searchForm.on('submit', async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
