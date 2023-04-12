@@ -1,10 +1,11 @@
-'use strict';
+"use strict";
 
-const BASE_URL = 'https://api.tvmaze.com';
+const BASE_URL = "https://api.tvmaze.com";
+const DEFAULT_IMAGE = `https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300`
 
-const $showsList = $('#showsList');
-const $episodesArea = $('#episodesArea');
-const $searchForm = $('#searchForm');
+const $showsList = $("#showsList");
+const $episodesArea = $("#episodesArea");
+const $searchForm = $("#searchForm");
 const searchTerm = $searchForm.val();
 
 /** Given a search term, search for tv shows that match that query.
@@ -15,12 +16,12 @@ const searchTerm = $searchForm.val();
  */
 
 async function getShowsByTerm(searchTerm) {
-  //url:http://api.tvmaze.com/search/shows?q=[searchquery]
-
   //send a get request to tvmaze with searchTerm as q parameters
   const searchResult = await axios.get(
     `${BASE_URL}/search/shows/?q=${searchTerm}`
   );
+
+  //TODO:ask about why this didnt work in CR
   //   method: "get",
   //   url: `${BASE_URL}/search/shows/?q=${searchTerm}`,
   //   type: 'application/json',
@@ -30,10 +31,11 @@ async function getShowsByTerm(searchTerm) {
   //   // },
   // });
 
-  console.log('search result=', searchResult);
-  console.log('ID', searchResult.data[0].show.id);
-  console.log('image', searchResult.data[0].show.image.original);
-  console.log('name', searchResult.data[0].show.name);
+  //leaving these for now for further testing
+  // console.log("search result=", searchResult);
+  // console.log("ID", searchResult.data[0].show.id);
+  // console.log("image", searchResult.data[0].show.image.original);
+  // console.log("name", searchResult.data[0].show.name);
 
   //format it per below
 
@@ -44,8 +46,7 @@ async function getShowsByTerm(searchTerm) {
       id: searchResult.data[0].show.id,
       name: searchResult.data[0].show.name,
       summary: searchResult.data[0].show.summary,
-      image:
-        'http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg',
+      image: searchResult.data[0].show.image.original || DEFAULT_IMAGE,
     },
   ];
 }
@@ -56,14 +57,16 @@ async function getShowsByTerm(searchTerm) {
  * */
 
 function displayShows(shows) {
+  console.log('shows=', shows)
   $showsList.empty();
 
   for (const show of shows) {
+    console.log('show=', show)
     const $show = $(`
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
+              src="${show.image}"
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
@@ -86,14 +89,15 @@ function displayShows(shows) {
  */
 
 async function searchShowsAndDisplay() {
-  const term = $('#searchForm-term').val();
+  const term = $("#searchForm-term").val();
   const shows = await getShowsByTerm(term);
 
   $episodesArea.hide();
   displayShows(shows);
 }
 
-$searchForm.on('submit', async function handleSearchForm(evt) {
+/**handles click on submit button and calls searchShowAndDisplay */
+$searchForm.on("submit", async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
