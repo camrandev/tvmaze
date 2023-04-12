@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-const BASE_URL = "https://api.tvmaze.com";
+const BASE_URL = 'https://api.tvmaze.com';
 
-const $showsList = $("#showsList");
-const $episodesArea = $("#episodesArea");
-const $searchForm = $("#searchForm");
+const $showsList = $('#showsList');
+const $episodesArea = $('#episodesArea');
+const $searchForm = $('#searchForm');
 const searchTerm = $searchForm.val();
 
 /** Given a search term, search for tv shows that match that query.
@@ -18,18 +18,22 @@ async function getShowsByTerm(searchTerm) {
   //url:http://api.tvmaze.com/search/shows?q=[searchquery]
 
   //send a get request to tvmaze with searchTerm as q parameters
-  const searchResult = await axios.get({
-    method: "get",
-    url: `${BASE_URL}/search/shows/?q=${searchTerm}`,
-    type: 'application/json',
-    //no headers
-    // params: {
-    //   q: `${searchTerm}`,
-    // },
-  });
+  const searchResult = await axios.get(
+    `${BASE_URL}/search/shows/?q=${searchTerm}`
+  );
+  //   method: "get",
+  //   url: `${BASE_URL}/search/shows/?q=${searchTerm}`,
+  //   type: 'application/json',
+  //   //no headers
+  //   // params: {
+  //   //   q: `${searchTerm}`,
+  //   // },
+  // });
 
-  console.log('search result=', searchResult)
-  console.log('searchURL')
+  console.log('search result=', searchResult);
+  console.log('ID', searchResult.data[0].show.id);
+  console.log('image', searchResult.data[0].show.image.original);
+  console.log('name', searchResult.data[0].show.name);
 
   //format it per below
 
@@ -37,19 +41,11 @@ async function getShowsByTerm(searchTerm) {
 
   return [
     {
-      id: 1767,
-      name: "The Bletchley Circle",
-      summary: `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-           women with extraordinary skills that helped to end World War II.</p>
-         <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-           normal lives, modestly setting aside the part they played in
-           producing crucial intelligence, which helped the Allies to victory
-           and shortened the war. When Susan discovers a hidden code behind an
-           unsolved murder she is met by skepticism from the police. She
-           quickly realises she can only begin to crack the murders and bring
-           the culprit to justice with her former friends.</p>`,
+      id: searchResult.data[0].show.id,
+      name: searchResult.data[0].show.name,
+      summary: searchResult.data[0].show.summary,
       image:
-        "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg",
+        'http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg',
     },
   ];
 }
@@ -90,14 +86,14 @@ function displayShows(shows) {
  */
 
 async function searchShowsAndDisplay() {
-  const term = $("#searchForm-term").val();
+  const term = $('#searchForm-term').val();
   const shows = await getShowsByTerm(term);
 
   $episodesArea.hide();
   displayShows(shows);
 }
 
-$searchForm.on("submit", async function handleSearchForm(evt) {
+$searchForm.on('submit', async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });
