@@ -33,16 +33,25 @@ class Show {
     }
   }
 
-
-/**checks if a summary is present, returns the summary if true, default
- * text if not
- */
+  /**checks if a summary is present, returns the summary if true, default
+   * text if not
+   */
   checkSummary(summary) {
     if (!summary) {
       return "No summary available";
     } else {
       return summary;
     }
+  }
+}
+
+class Episode {
+  constructor(rawEpisodeObject) {
+    const { id, name, season, number } = rawEpisodeObject;
+    this.id = id;
+    this.name = name;
+    this.season = season;
+    this.number = number;
   }
 }
 
@@ -59,7 +68,7 @@ async function getShowsByTerm(searchTerm) {
   );
 
   const shows = searchResult.data;
-  const formattedShowData = shows.map(show => new Show(show))
+  const formattedShowData = shows.map((show) => new Show(show));
 
   return formattedShowData;
 }
@@ -124,11 +133,9 @@ async function getEpisodesOfShow(id) {
   const searchResult = await axios.get(`${BASE_URL}/shows/${id}/episodes`);
   const { data } = searchResult;
 
-  return data;
+  const formattedEpisodeData = data.map((episode) => new Episode(episode));
 
-  //loop over the array of objects, very similarly to in
-  //get shows by term function
-  //need a class for episode
+  return formattedEpisodeData;
 }
 
 /** Write a clear docstring for this function... */
