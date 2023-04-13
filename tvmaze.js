@@ -5,6 +5,7 @@ const DEFAULT_IMAGE = `https://store-images.s-microsoft.com/image/apps.65316.135
 
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
+const $episodesList = $("#episodesList")
 const $searchForm = $("#searchForm");
 const searchTerm = $searchForm.val();
 
@@ -45,6 +46,9 @@ class Show {
   }
 }
 
+/**class to handle all logic and parsing related to raw episode objects returned
+ * from the API.
+ */
 class Episode {
   constructor(rawEpisodeObject) {
     const { id, name, season, number } = rawEpisodeObject;
@@ -134,12 +138,35 @@ async function getEpisodesOfShow(id) {
   const { data } = searchResult;
 
   const formattedEpisodeData = data.map((episode) => new Episode(episode));
+  console.log('formattedEpisode=', formattedEpisodeData)
 
   return formattedEpisodeData;
 }
 
-/** Write a clear docstring for this function... */
+/**Populates and displays the episode list for a show
+ * Args: an array of pre-formatted show objects
+ * Returns: nothing, only modifes the DOM
+ */
+function displayEpisodes(episodes) {
+  console.log('episodes in displayEps=', episodes)
+  //empty the episode area
+  $episodesList.empty();
 
-// function displayEpisodes(episodes) { }
+  for (const episode of episodes) {
+    const { id, name, season, number } = episode;
+
+    const $episode = $(
+      `<li data-episode-id="${id}">
+      ${name} (season ${season}, number ${number})
+      </li>`
+    );
+
+    $episodesList.append($episode)
+  }
+
+  $episodesArea.removeAttr('display');
+
+  //populate it with the clicked on shows list of episodes
+}
 
 // add other functions that will be useful / match our structure & design
