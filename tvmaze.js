@@ -8,22 +8,33 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 const searchTerm = $searchForm.val();
 
+/**Class to handle all logic and parsing related to the object data returned
+ * from API call
+ */
 class Show {
-  constructor(id, summary, name, image) {
+  constructor(rawShowObject) {
+    const { id, name, summary, image } = rawShowObject.show;
+
     this.id = id;
     this.name = name;
-    this.summary = summary;
-    this.image = this.imageCheck(image);;
-
-
+    this.summary = this.checkSummary(summary);
+    this.image = this.imageCheck(image);
   }
 
   imageCheck(image) {
-    if (image?.original === null) {
-      console.log('image=', image)
-      this.image = DEFAULT_IMAGE;
+    if (image === null) {
+      console.log("image=", image);
+      return DEFAULT_IMAGE;
     } else {
-      this.image = image.original;
+      return image.original;
+    }
+  }
+
+  checkSummary(summary) {
+    if (!summary) {
+      return "No summary available";
+    } else {
+      return summary;
     }
   }
 }
@@ -36,74 +47,20 @@ class Show {
  */
 
 async function getShowsByTerm(searchTerm) {
-  //send a get request to tvmaze with searchTerm as q parameters
   const searchResult = await axios.get(
     `${BASE_URL}/search/shows/?q=${searchTerm}`
   );
 
   const shows = searchResult.data;
 
-  //TODO:ask about why this didnt work in CR
-  //   method: "get",
-  //   url: `${BASE_URL}/search/shows/?q=${searchTerm}`,
-  //   type: 'application/json',
-  //   //no headers
-  //   // params: {
-  //   //   q: `${searchTerm}`,
-  //   // },
-  // });
-
-  // imageCheck(image) {
-  //   if (image.original === null) {
-  //     this.image = DEFAULT_IMAGE;
-  //   } else {
-  //     this.image = image.original;
-  //   }
-  // }
-
-  //leaving these for now for further testing
-  // console.log("search result=", searchResult);
-  // console.log("ID", searchResult.data[0].show.id);
-  // console.log("image", show.image.original);
-  // console.log("name", searchResult.data[0].show.name);
-
-  //format it per below
-
-  // ADD: Remove placeholder & make request to TVMaze search shows API.
-
   let formattedShowData = [];
 
-  //parse the API output into specified format
   for (let show of shows) {
-    // console.log("show.show.image=", show.show.image);
-    // const image = null;
-    //TODO: what am I doing wrong that makes it show.show?
-    // console.log('show=', show.show.image.original)
-    const showCard = new Show(
-      show.show.id,
-      show.show.summary,
-      show.show.name,
-      show.show.image
-    );
-
-    //   showCard.id = show.show.id;
-    //   showCard.name = show.show.name;
-    //   showCard.summary = show.show.summary || 'no summary available';
-    //   showCard.image = show.show.image.original;
-
+    const showCard = new Show(show);
     formattedShowData.push(showCard);
-    // }
   }
-  return formattedShowData;
 
-  // return [
-  //   {
-  //     id: searchResult.data[0].show.id,
-  //     name: searchResult.data[0].show.name,
-  //     summary: searchResult.data[0].show.summary,
-  //     image: showImage,
-  //   },
-  // ];
+  return formattedShowData;
 }
 
 /** Given list of shows, create markup for each and append to DOM.
@@ -121,7 +78,7 @@ function displayShows(shows) {
         <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="${show.image || DEFAULT_IMAGE}"
+              src="${show.image}"
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
