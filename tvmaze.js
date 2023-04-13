@@ -21,6 +21,9 @@ class Show {
     this.image = this.imageCheck(image);
   }
 
+  /**checks if image is present, returns the image if true, default image if not
+   *
+   */
   imageCheck(image) {
     if (image === null) {
       console.log("image=", image);
@@ -30,6 +33,10 @@ class Show {
     }
   }
 
+
+/**checks if a summary is present, returns the summary if true, default
+ * text if not
+ */
   checkSummary(summary) {
     if (!summary) {
       return "No summary available";
@@ -52,13 +59,7 @@ async function getShowsByTerm(searchTerm) {
   );
 
   const shows = searchResult.data;
-
-  let formattedShowData = [];
-
-  for (let show of shows) {
-    const showCard = new Show(show);
-    formattedShowData.push(showCard);
-  }
+  const formattedShowData = shows.map(show => new Show(show))
 
   return formattedShowData;
 }
@@ -118,7 +119,17 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+//return array of episode objects
+async function getEpisodesOfShow(id) {
+  const searchResult = await axios.get(`${BASE_URL}/shows/${id}/episodes`);
+  const { data } = searchResult;
+
+  return data;
+
+  //loop over the array of objects, very similarly to in
+  //get shows by term function
+  //need a class for episode
+}
 
 /** Write a clear docstring for this function... */
 
